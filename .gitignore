@@ -1,0 +1,34 @@
+# Python virtual environments
+.venv/
+.venv-1/
+__pycache__/
+*.pyc
+
+# LaTeX source & build artifacts (only PDFs go to GitHub)
+*.tex
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+
+# Build folder
+Guide/build/
+
+# Image sources & generation
+Guide/images/
+Guide/generate_images.py
+
+# Build script
+Guide/compile.bat
+
+# Guide-level gitignore (handled here now)
+Guide/.gitignore
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
