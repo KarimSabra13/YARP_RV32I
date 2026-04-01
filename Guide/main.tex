@@ -648,6 +648,19 @@ I-type instructions use a \textbf{12-bit signed immediate} value as one operand 
 For SLLI, SRLI, and SRAI, only the lower 5 bits of the immediate (\texttt{shamt} = shift amount, bits [4:0]) specify the shift distance (0--31). The upper bits (imm[11:5]) act like \texttt{funct7} to distinguish SRLI from SRAI.
 \end{infobox}
 
+\begin{keybox}
+\textbf{\color{gold}How to think about I-Type arithmetic:}
+Most I-type arithmetic instructions mean ``take one register value and combine it with a small constant.'' This is why they are heavily used for loop counters, stack-pointer updates, small address adjustments, and bit masks.
+
+\begin{itemize}
+  \item \textbf{\texttt{ADDI}} is the workhorse for incrementing and decrementing values.
+  \item There is no separate \texttt{SUBI} instruction in RV32I: subtracting a constant is just \texttt{ADDI} with a negative immediate.
+  \item \textbf{\texttt{ANDI}/\texttt{ORI}/\texttt{XORI}} perform bitwise operations between \texttt{rs1} and the immediate, which makes them useful for masking or setting selected bits.
+\end{itemize}
+
+\textbf{Small example:} \texttt{addi x5, x5, -4} subtracts 4 from \texttt{x5}.
+\end{keybox}
+
 \subsection{I-Type Load Instructions (\texttt{opcode = 0000011})}
 
 Load instructions read data from memory at address $\texttt{rs1} + \text{sext}(\text{imm})$ and place it in \texttt{rd}.
@@ -671,6 +684,19 @@ Load instructions read data from memory at address $\texttt{rs1} + \text{sext}(\
 \textbf{\color{accentblue}Sign-extension vs.\ Zero-extension:}
 \texttt{LB}/\texttt{LH} are \textbf{signed}: the MSB of the loaded value is replicated to fill the upper bits, preserving the sign of the original value. \texttt{LBU}/\texttt{LHU} are \textbf{unsigned}: the upper bits are filled with zeros. This is critical when loading narrow data into a 32-bit register.
 \end{infobox}
+
+\begin{keybox}
+\textbf{\color{gold}Width reminder:}
+In RV32I, a \textbf{byte} is 8 bits, a \textbf{halfword} is 16 bits, and a \textbf{word} is 32 bits. The load instruction tells the processor both \textbf{how many bytes to read} and \textbf{how to fill the rest of the destination register}.
+
+\begin{itemize}
+  \item Use \texttt{LB}/\texttt{LBU} for 8-bit values such as characters or packed flags.
+  \item Use \texttt{LH}/\texttt{LHU} for 16-bit fields.
+  \item Use \texttt{LW} when the full 32-bit word is needed.
+\end{itemize}
+
+In a simple RV32I implementation, it is safest to think of halfwords as 2-byte aligned and words as 4-byte aligned.
+\end{keybox}
 
 \newpage
 
@@ -715,6 +741,21 @@ The S-type immediate occupies the same bit positions as R-type's \texttt{funct7}
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{keybox}
+\textbf{\color{gold}Store reminder:}
+Stores move data \textbf{from a register into memory}, so there is nothing to sign-extend or zero-extend at store time.
+
+\begin{itemize}
+  \item \texttt{SB} writes only the lower 8 bits of \texttt{rs2}.
+  \item \texttt{SH} writes only the lower 16 bits of \texttt{rs2}.
+  \item \texttt{SW} writes the full 32 bits of \texttt{rs2}.
+\end{itemize}
+
+That is why RV32I has \texttt{LBU}/\texttt{LHU} for unsigned loads but no ``unsigned store'' instructions.
+
+\textbf{Small example:} if \texttt{x6 = 0x12345678}, then \texttt{sb x6, 0(x5)} stores only \texttt{0x78} to memory.
+\end{keybox}
 
 \newpage
 
@@ -776,6 +817,15 @@ RISC-V omits ``branch-if-less-or-equal'' and ``branch-if-greater-than'' because 
 This keeps the hardware simple without losing expressiveness.
 \end{infobox}
 
+\begin{keybox}
+\textbf{\color{gold}Branch reminder:}
+A branch does not contain a full absolute destination address. Instead, it says ``if this comparison is true, add this signed offset to the current \texttt{PC}.'' If the comparison is false, execution simply continues at the next instruction (\texttt{PC + 4}).
+
+Because bit 0 of the encoded offset is always 0, the target moves in steps of 2 bytes rather than 1 byte.
+
+\textbf{Small example:} if the current \texttt{PC} is \texttt{0x1000} and the branch offset is \texttt{+16}, the branch target is \texttt{0x1010}. If the condition is false, execution continues at \texttt{0x1004}.
+\end{keybox}
+
 \newpage
 
 % ─── U-Type ───────────────────────────────────────────
@@ -830,6 +880,15 @@ Example: load \texttt{0xDEADBEEF} into \texttt{x5}:
 \vspace{-0.3cm}
 \end{keybox}
 
+\begin{infobox}
+\textbf{\color{accentblue}LUI vs.\ AUIPC mental model:}
+\texttt{LUI} builds a value from the immediate itself, while \texttt{AUIPC} builds a value \textbf{relative to the current \texttt{PC}}.
+
+Use \texttt{LUI} when you want a large constant in a register. Use \texttt{AUIPC} when you want a base address for nearby code or data.
+
+That is why \texttt{AUIPC} often appears with \texttt{JALR}, loads, or stores in PC-relative code sequences.
+\end{infobox}
+
 \newpage
 
 % ─── J-Type ───────────────────────────────────────────
@@ -883,6 +942,20 @@ $$\text{offset} = \{\text{imm}[20], \text{imm}[19:12], \text{imm}[11], \text{imm
 \end{itemize}
 \end{infobox}
 
+\begin{keybox}
+\textbf{\color{gold}What does ``link'' mean?}
+The \textbf{link} is just the return address, usually \texttt{PC + 4}. Saving it in \texttt{ra} lets the called function know where to come back after it finishes.
+
+If you do not need a return address, you can discard the link by writing it to \texttt{x0}. That turns \texttt{JAL} into a plain unconditional jump.
+
+\begin{itemize}
+  \item \texttt{jal ra, function\_label} --- function call
+  \item \texttt{jal x0, label} --- unconditional jump without saving a return address
+\end{itemize}
+
+\texttt{JALR} is the register-based version, which is why returns are commonly written as \texttt{jalr x0, ra, 0}.
+\end{keybox}
+
 \newpage
 
 % ─── System Instructions ─────────────────────────────
@@ -904,6 +977,18 @@ The RV32I base includes two system instructions used to request services from th
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{keybox}
+\textbf{\color{gold}ECALL vs.\ EBREAK:}
+These instructions do not behave like normal arithmetic or memory operations. Instead, they hand control to something \textbf{outside the ordinary instruction flow}.
+
+\begin{itemize}
+  \item \texttt{ECALL} is used when the program wants the execution environment to do something on its behalf.
+  \item \texttt{EBREAK} is used when the program wants to stop under debugger control.
+\end{itemize}
+
+The exact behavior of \texttt{ECALL} depends on the simulator, operating system, or test environment being used, while \texttt{EBREAK} is mainly a debugging aid.
+\end{keybox}
 
 \newpage
 
