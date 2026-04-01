@@ -15,15 +15,16 @@ __pycache__/
 *.synctex.gz
 *.synctex(busy)
 
+# Keep the guide source and build script versioned
+!Guide/main.tex
+!Guide/compile.bat
+
 # Build folder
 Guide/build/
 
 # Image sources & generation
 Guide/images/
 Guide/generate_images.py
-
-# Build script
-Guide/compile.bat
 
 # Guide-level gitignore (handled here now)
 Guide/.gitignore

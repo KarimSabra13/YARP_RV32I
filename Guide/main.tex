@@ -1,0 +1,1192 @@
+\documentclass[12pt, a4paper, oneside]{book}
+
+% =====================================================
+% PACKAGES
+% =====================================================
+\usepackage[utf8]{inputenc}
+\usepackage[left=0.55cm, right=0.55cm, top=0.7cm, bottom=0.7cm, includeheadfoot]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{mdframed}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{tabularx}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, shadows, decorations.pathreplacing}
+
+% =====================================================
+% COLOR DEFINITIONS
+% =====================================================
+\definecolor{darkblue}{RGB}{25, 55, 109}
+\definecolor{accentblue}{RGB}{70, 130, 180}
+\definecolor{lightblue}{RGB}{230, 240, 250}
+\definecolor{darkgreen}{RGB}{34, 139, 34}
+\definecolor{gold}{RGB}{218, 165, 32}
+\definecolor{darkred}{RGB}{139, 0, 0}
+\definecolor{orange}{RGB}{255, 140, 0}
+\definecolor{purple}{RGB}{128, 0, 128}
+\definecolor{teal}{RGB}{0, 128, 128}
+
+% Instruction type colors
+\definecolor{rtypecolor}{RGB}{229, 57, 53}
+\definecolor{itypecolor}{RGB}{30, 136, 229}
+\definecolor{stypecolor}{RGB}{67, 160, 71}
+\definecolor{btypecolor}{RGB}{251, 140, 0}
+\definecolor{utypecolor}{RGB}{142, 36, 170}
+\definecolor{jtypecolor}{RGB}{0, 137, 123}
+
+% Field colors (for tables)
+\definecolor{funct7bg}{RGB}{255, 205, 210}
+\definecolor{rs2bg}{RGB}{200, 230, 201}
+\definecolor{rs1bg}{RGB}{187, 222, 251}
+\definecolor{funct3bg}{RGB}{255, 224, 178}
+\definecolor{rdbg}{RGB}{225, 190, 231}
+\definecolor{opcodebg}{RGB}{179, 229, 252}
+\definecolor{immbg}{RGB}{255, 205, 210}
+
+% =====================================================
+% ASSEMBLY SYNTAX HIGHLIGHTING
+% =====================================================
+\lstdefinelanguage{riscv}{
+  morekeywords={
+    add, sub, sll, slt, sltu, xor, srl, sra, or, and,
+    addi, slti, sltiu, xori, ori, andi, slli, srli, srai,
+    lb, lh, lw, lbu, lhu,
+    sb, sh, sw,
+    beq, bne, blt, bge, bltu, bgeu,
+    lui, auipc,
+    jal, jalr,
+    ecall, ebreak,
+    x0, x1, x2, x3, x4, x5, x6, x7, x8, x9,
+    x10, x11, x12, x13, x14, x15, x16, x17, x18, x19,
+    x20, x21, x22, x23, x24, x25, x26, x27, x28, x29,
+    x30, x31,
+    zero, ra, sp, gp, tp, t0, t1, t2, s0, fp, s1,
+    a0, a1, a2, a3, a4, a5, a6, a7,
+    s2, s3, s4, s5, s6, s7, s8, s9, s10, s11,
+    t3, t4, t5, t6
+  },
+  sensitive=true,
+  morecomment=[l]{\#},
+  morecomment=[l]{//},
+  morestring=[b]"
+}
+
+\lstset{
+  language=riscv,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{purple}\bfseries,
+  commentstyle=\color{darkgreen}\itshape,
+  stringstyle=\color{orange},
+  numberstyle=\color{gray}\tiny,
+  identifierstyle=\color{darkblue},
+  backgroundcolor=\color{lightblue},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2,
+  showstringspaces=false,
+  numbers=left,
+  numbersep=5pt,
+  framexleftmargin=10pt,
+  framextopmargin=5pt,
+  framexbottommargin=5pt,
+  frame=tb,
+  rulecolor=\color{accentblue},
+  captionpos=b,
+  lineskip=-1pt
+}
+
+% =====================================================
+% TITLE FORMATTING
+% =====================================================
+\titleformat{\chapter}
+  {\normalfont\huge\bfseries\color{darkblue}}
+  {\color{gold}\thechapter.}
+  {20pt}
+  {}
+  [\color{accentblue}\hrule]
+\titlespacing*{\chapter}{0pt}{-30pt}{20pt}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{accentblue}}
+  {\color{gold}\thesection}
+  {12pt}
+  {}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{teal}}
+  {\color{gold}\thesubsection}
+  {10pt}
+  {}
+
+% =====================================================
+% HEADER AND FOOTER
+% =====================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{darkblue}\textbf{YARP RV32I --- Design \& Verification Guide}}
+\fancyhead[R]{\color{darkblue}\thepage}
+\fancyfoot[C]{\color{gray}\small\today}
+\renewcommand{\headrulewidth}{1.5pt}
+\renewcommand{\headrule}{\color{accentblue}\hrule}
+
+% =====================================================
+% TABLE OF CONTENTS STYLING
+% =====================================================
+\renewcommand{\cftchapfont}{\color{darkblue}\bfseries}
+\renewcommand{\cftsecfont}{\color{accentblue}}
+\renewcommand{\cftdot}{\color{gold}.}
+
+% =====================================================
+% HYPERLINK COLORS
+% =====================================================
+\hypersetup{
+  colorlinks=true,
+  linkcolor=darkblue,
+  urlcolor=accentblue,
+  citecolor=darkgreen
+}
+
+% =====================================================
+% COMPONENT DESCRIPTION BOX
+% =====================================================
+\newmdenv[
+  linecolor=accentblue,
+  linewidth=1.5pt,
+  backgroundcolor=lightblue!60,
+  roundcorner=6pt,
+  skipabove=6pt,
+  skipbelow=6pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt
+]{infobox}
+
+% Key concept box
+\newmdenv[
+  linecolor=gold,
+  linewidth=2pt,
+  backgroundcolor=gold!8,
+  roundcorner=6pt,
+  skipabove=8pt,
+  skipbelow=8pt,
+  innertopmargin=10pt,
+  innerbottommargin=10pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt
+]{keybox}
+
+% Warning / important box
+\newmdenv[
+  linecolor=darkred,
+  linewidth=1.5pt,
+  backgroundcolor=darkred!5,
+  roundcorner=6pt,
+  skipabove=6pt,
+  skipbelow=6pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt
+]{warnbox}
+
+% =====================================================
+% DOCUMENT START
+% =====================================================
+\begin{document}
+
+% =====================================================
+% TITLE PAGE
+% =====================================================
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+
+  {\color{darkblue}\Huge\bfseries YARP RV32I}
+
+  \vspace{0.5cm}
+
+  {\color{accentblue}\LARGE Design \& Verification Guide}
+
+  \vspace{2cm}
+
+  \begin{center}
+    \colorbox{lightblue}{
+      \parbox{0.8\textwidth}{
+        \centering
+        \vspace{1cm}
+        {\color{darkblue}\Large\bfseries RISC-V RV32I Processor}
+
+        \vspace{0.5cm}
+
+        {\color{accentblue}\normalsize From ISA Fundamentals to Hardware Implementation}
+        \vspace{1cm}
+      }
+    }
+  \end{center}
+
+  \vspace{3cm}
+
+  {\color{gold}\large\bfseries Key Topics:}
+  \begin{itemize}
+    \item[\color{purple}\checkmark] Computer Architecture Fundamentals
+    \item[\color{purple}\checkmark] RISC-V RV32I Instruction Set Architecture
+    \item[\color{purple}\checkmark] Instruction Formats (R, I, S, B, U, J)
+    \item[\color{purple}\checkmark] Complete ISA Reference
+    \item[\color{purple}\checkmark] Programmer's Model \& Register File
+    \item[\color{purple}\checkmark] YARP Processor Microarchitecture
+  \end{itemize}
+
+  \vfill
+
+  {\color{darkgreen}\normalsize Last Updated: \today}
+
+\end{titlepage}
+
+% =====================================================
+% TABLE OF CONTENTS
+% =====================================================
+\tableofcontents
+\newpage
+
+% =====================================================
+% CHAPTER 1: COMPUTER ARCHITECTURE
+% =====================================================
+\chapter{Computer Architecture}
+
+\section{What Is Computer Architecture?}
+
+\textbf{Computer architecture} describes the structure and behaviour of a computer system at a level visible to a programmer or hardware designer. It defines \textit{how} a processor executes instructions, \textit{how} it stores and retrieves data, and \textit{how} the various internal components interact.
+
+At the highest level, every computer --- regardless of its complexity --- follows a simple cycle:
+
+\begin{enumerate}
+  \item \textbf{\color{purple}Fetch} --- retrieve the next instruction from memory.
+  \item \textbf{\color{purple}Decode} --- interpret the instruction to determine what operation is required.
+  \item \textbf{\color{purple}Execute} --- carry out the operation (arithmetic, load/store, branch, etc.).
+  \item \textbf{\color{purple}Write-back} --- store the result in a register or memory.
+\end{enumerate}
+
+This is commonly known as the \textbf{Fetch--Decode--Execute} cycle.
+
+\begin{keybox}
+\textbf{\color{gold}Key Concept:}
+A processor's \textbf{Instruction Set Architecture (ISA)} is the contract between software and hardware. It specifies the instructions the processor can execute, the registers available to the programmer, and the memory model. The ISA is architecture; the circuits that implement it are \textbf{microarchitecture}.
+\end{keybox}
+
+% ─── Von Neumann ──────────────────────────────────────
+\section{Von Neumann Architecture}
+
+The \textbf{Von Neumann architecture} (proposed by John von Neumann in 1945) is the foundational model for nearly all modern computers. Its key characteristic is a \textit{single, shared memory} that stores both \textbf{instructions} and \textbf{data}.
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/von_neumann.png}
+\end{center}
+
+\subsection{Key Properties}
+
+\begin{itemize}
+  \item \textbf{\color{purple}Single memory space:} program code and data occupy the same address range. The CPU fetches instructions and reads/writes data through the \textbf{same bus}.
+  \item \textbf{\color{purple}Sequential execution:} one instruction is fetched, decoded, and executed at a time (in the simplest implementation).
+  \item \textbf{\color{purple}Stored-program concept:} the program itself resides in modifiable memory, making general-purpose computing possible.
+\end{itemize}
+
+\begin{warnbox}
+\textbf{\color{darkred}Von Neumann Bottleneck:}
+Because instructions and data share a single bus, the CPU can either fetch an instruction \textit{or} access data in a given cycle --- never both simultaneously. This creates a bandwidth bottleneck that limits performance.
+\end{warnbox}
+
+% ─── Harvard ──────────────────────────────────────────
+\section{Harvard Architecture}
+
+The \textbf{Harvard architecture} solves the Von Neumann bottleneck by providing \textbf{separate memory spaces and buses} for instructions and data.
+
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{images/harvard.png}
+\end{center}
+
+\subsection{Key Properties}
+
+\begin{itemize}
+  \item \textbf{\color{purple}Separate memories:} instruction memory and data memory are physically distinct, each with its own address bus and data bus.
+  \item \textbf{\color{purple}Simultaneous access:} the CPU can fetch the next instruction while reading/writing data in the same clock cycle --- doubling effective bandwidth.
+  \item \textbf{\color{purple}Common in embedded and RISC:} many modern processors (including RISC-V implementations) use a \textbf{Modified Harvard} architecture: separate caches for instruction and data (L1 I-cache / D-cache) backed by a unified main memory.
+\end{itemize}
+
+\begin{infobox}
+\textbf{\color{accentblue}RISC-V and Harvard:}
+Most practical RISC-V cores adopt a \textbf{Modified Harvard} approach --- split instruction and data caches for performance, but a unified physical memory so that programs can be loaded and modified conventionally.
+\end{infobox}
+
+% ─── Inside the CPU ─────────────────────────────────
+\section{Inside the CPU}
+
+A CPU is built from several cooperating blocks. The diagram below shows the main components relevant to a simple RV32I implementation:
+
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{images/cpu_block.png}
+\end{center}
+
+\begin{itemize}
+  \item \textbf{\color{purple}Program Counter (PC):} holds the address of the \textit{current} instruction. After each fetch, the PC is incremented by 4 (the size of one RV32I instruction) or updated by a branch/jump.
+  \item \textbf{\color{purple}Instruction Decoder:} breaks the 32-bit instruction word into fields (opcode, funct3, funct7, register addresses, immediate value) and determines the required operation.
+  \item \textbf{\color{purple}Register File:} a bank of 32 general-purpose registers (x0--x31), each 32 bits wide. The file typically has two read ports and one write port.
+  \item \textbf{\color{purple}ALU (Arithmetic Logic Unit):} performs arithmetic (add, subtract) and logic (AND, OR, XOR, shift, compare) operations.
+  \item \textbf{\color{purple}Immediate Generator:} extracts and sign-extends the immediate value embedded in the instruction, rearranging the bits depending on the instruction format.
+  \item \textbf{\color{purple}Control Unit:} generates control signals that steer multiplexers, the ALU operation selector, register write-enable, memory read/write, and branch decision logic.
+\end{itemize}
+
+% ─── RISC vs CISC ─────────────────────────────────────
+\section{RISC vs.\ CISC}
+
+Processors are broadly classified into two design philosophies:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{p{3.5cm} p{5.8cm} p{5.8cm}}
+\toprule
+\textbf{\color{purple}Aspect} & \textbf{\color{rtypecolor}CISC} \newline \footnotesize (Complex Instruction Set) & \textbf{\color{itypecolor}RISC} \newline \footnotesize (Reduced Instruction Set) \\
+\midrule
+Instruction count   & Many (hundreds)                & Few (typically $< 50$ base) \\
+Instruction length   & Variable (1--15 bytes on x86)  & Fixed (4 bytes in RV32I) \\
+Execution time       & Multi-cycle per instruction     & Ideally 1 cycle per instruction \\
+Memory access        & Instructions can operate directly on memory & Load/Store architecture: only \texttt{LW}/\texttt{SW} access memory \\
+Complexity           & Complex hardware decoder        & Simple decoder, more compiler work \\
+Examples             & x86, x86-64                     & RISC-V, ARM, MIPS \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{keybox}
+\textbf{\color{gold}Why RISC-V?}
+RISC-V is an \textbf{open-standard} ISA released by UC Berkeley in 2010. It is modular (start with RV32I, add M, A, F, D, C extensions as needed), royalty-free, and designed for clean hardware implementation --- making it an ideal educational and commercial platform.
+\end{keybox}
+
+\newpage
+
+% =====================================================
+% CHAPTER 2: THE RV32I ISA
+% =====================================================
+\chapter{The RV32I Instruction Set Architecture}
+
+\section{Introduction to RISC-V}
+
+\textbf{RISC-V} (pronounced ``risk-five'') is a free and open Instruction Set Architecture originally developed at the University of California, Berkeley. Unlike proprietary ISAs (x86, ARM), \textbf{anyone} can implement a RISC-V processor without licensing fees.
+
+The ISA is \textbf{modular}: a small mandatory base (\texttt{RV32I}) provides a complete integer instruction set, and optional standard extensions add functionality:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c l l}
+\toprule
+\textbf{\color{purple}Extension} & \textbf{\color{purple}Name} & \textbf{\color{purple}Description} \\
+\midrule
+\texttt{I} & Base Integer        & 32-bit integer arithmetic, loads, stores, branches, jumps \\
+\texttt{M} & Multiply / Divide   & Hardware multiply and divide instructions \\
+\texttt{A} & Atomic              & Atomic read-modify-write for multi-core \\
+\texttt{F} & Single-Float        & IEEE 754 single-precision floating point \\
+\texttt{D} & Double-Float        & IEEE 754 double-precision floating point \\
+\texttt{C} & Compressed          & 16-bit compressed instruction encoding \\
+\texttt{Zicsr} & CSR              & Control and Status Register instructions \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+Throughout this guide we focus exclusively on the \textbf{RV32I} base --- the minimum set that every RISC-V implementation must support.
+
+\section{RV32I Overview}
+
+The RV32I base defines:
+
+\begin{itemize}
+  \item \textbf{\color{purple}32 general-purpose registers} (\texttt{x0}--\texttt{x31}), each 32 bits wide. \texttt{x0} is hardwired to zero.
+  \item \textbf{\color{purple}A 32-bit Program Counter (PC)}.
+  \item \textbf{\color{purple}Fixed 32-bit instruction width} (4 bytes, naturally aligned).
+  \item \textbf{\color{purple}A load/store architecture:} only load and store instructions access memory; all other operations work on registers.
+  \item \textbf{\color{purple}40 base instructions} organized into 6 encoding formats.
+  \item \textbf{\color{purple}Little-endian} byte ordering (with optional big-endian).
+  \item \textbf{\color{purple}32-bit flat address space} ($2^{32} = 4\,\text{GiB}$).
+\end{itemize}
+
+% ─── Programmer's Model ──────────────────────────────
+\section{Programmer's Model}
+
+\subsection{The Register File}
+
+The RV32I register file contains \textbf{32 integer registers}, each 32 bits wide, designated \texttt{x0} through \texttt{x31}. In addition, each register has a \textit{conventional ABI (Application Binary Interface) name} used by compilers and assembly programmers.
+
+\begin{center}
+  \includegraphics[width=0.55\textwidth]{images/register_file.png}
+\end{center}
+
+\begin{keybox}
+\textbf{\color{gold}Special Register --- \texttt{x0} (zero):}
+Register \texttt{x0} is \textbf{hardwired to the value 0}. Any write to \texttt{x0} is silently discarded. This simplifies many operations --- for example, \texttt{addi x5, x0, 42} loads the constant 42 into \texttt{x5} without needing a separate ``load immediate'' instruction.
+\end{keybox}
+
+\subsection{Register Convention (ABI)}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\footnotesize
+\begin{tabular}{c c l l}
+\toprule
+\textbf{\color{purple}Register} & \textbf{\color{purple}ABI Name} & \textbf{\color{purple}Role} & \textbf{\color{purple}Saver} \\
+\midrule
+\texttt{x0}       & \texttt{zero} & Hard-wired zero               & --- \\
+\texttt{x1}       & \texttt{ra}   & Return address                & Caller \\
+\texttt{x2}       & \texttt{sp}   & Stack pointer                 & Callee \\
+\texttt{x3}       & \texttt{gp}   & Global pointer                & --- \\
+\texttt{x4}       & \texttt{tp}   & Thread pointer                & --- \\
+\texttt{x5--x7}   & \texttt{t0--t2} & Temporaries                 & Caller \\
+\texttt{x8}       & \texttt{s0/fp}  & Saved / frame pointer       & Callee \\
+\texttt{x9}       & \texttt{s1}     & Saved register              & Callee \\
+\texttt{x10--x11} & \texttt{a0--a1} & Function args / return vals & Caller \\
+\texttt{x12--x17} & \texttt{a2--a7} & Function arguments          & Caller \\
+\texttt{x18--x27} & \texttt{s2--s11}& Saved registers             & Callee \\
+\texttt{x28--x31} & \texttt{t3--t6} & Temporaries                 & Caller \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Caller-saved vs.\ Callee-saved:}
+\textbf{Caller-saved} registers may be overwritten by any function call; the caller must save them if their values are needed later. \textbf{Callee-saved} registers must be preserved across function calls; if a function modifies them, it must save and restore them.
+\end{infobox}
+
+\subsection{Program Counter}
+
+The \textbf{Program Counter (PC)} is a dedicated 32-bit register that holds the address of the \textit{currently executing instruction}. After each instruction, the PC is updated:
+\begin{itemize}
+  \item \textbf{Sequential:} $\text{PC} \leftarrow \text{PC} + 4$ (next instruction).
+  \item \textbf{Branch taken:} $\text{PC} \leftarrow \text{PC} + \text{offset}$ (relative jump).
+  \item \textbf{Jump:} $\text{PC} \leftarrow \text{target address}$ (absolute or register-based).
+\end{itemize}
+
+\subsection{Memory Model}
+
+RV32I uses a \textbf{flat, byte-addressable} 32-bit address space. Memory is accessed only via load and store instructions.
+
+\begin{center}
+  \includegraphics[width=0.45\textwidth]{images/memory_layout.png}
+\end{center}
+
+\newpage
+
+% ─── Instruction Formats ─────────────────────────────
+\section{Instruction Formats}
+
+Every RV32I instruction is exactly \textbf{32 bits} wide. The ISA defines \textbf{six encoding formats} that specify how the 32 bits are partitioned into fields:
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{images/instruction_formats.png}
+\end{center}
+
+All formats share a common 7-bit \texttt{opcode} field in bits [6:0], which determines the general category of the instruction. The remaining 25 bits carry register addresses, function selectors, and/or immediate values.
+
+\begin{center}
+  \includegraphics[width=0.82\textwidth]{images/type_overview.png}
+\end{center}
+
+\newpage
+
+% ─── R-Type ───────────────────────────────────────────
+\section{R-Type Instructions (Register--Register)}
+
+\begin{infobox}
+\textbf{\color{rtypecolor}\Large R-Type} \hfill \texttt{opcode = 0110011}\\[6pt]
+R-type instructions perform operations between \textbf{two source registers} (\texttt{rs1}, \texttt{rs2}) and write the result to a \textbf{destination register} (\texttt{rd}). No immediate value is used.
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{funct7bg}}p{2.2cm}|>{\centering\arraybackslash\columncolor{rs2bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\textbf{funct7} & \textbf{rs2} & \textbf{rs1} & \textbf{funct3} & \textbf{rd} & \textbf{opcode} \\
+\hline
+\footnotesize bits [31:25] & \footnotesize bits [24:20] & \footnotesize bits [19:15] & \footnotesize bits [14:12] & \footnotesize bits [11:7] & \footnotesize bits [6:0] \\
+\hline
+\footnotesize 7 bits & \footnotesize 5 bits & \footnotesize 5 bits & \footnotesize 3 bits & \footnotesize 5 bits & \footnotesize 7 bits \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fields}
+
+\begin{itemize}
+  \item \textbf{\color{purple}opcode} (7 bits): always \texttt{0110011} for R-type integer operations.
+  \item \textbf{\color{purple}rd} (5 bits): destination register that receives the result.
+  \item \textbf{\color{purple}funct3} (3 bits): selects the specific operation (ADD/SUB, SLL, SLT, etc.).
+  \item \textbf{\color{purple}rs1} (5 bits): first source register.
+  \item \textbf{\color{purple}rs2} (5 bits): second source register.
+  \item \textbf{\color{purple}funct7} (7 bits): further disambiguates the operation (e.g., \texttt{0000000} for ADD vs.\ \texttt{0100000} for SUB).
+\end{itemize}
+
+\subsection{R-Type Instruction Listing}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l l p{7.5cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}funct7} & \textbf{\color{purple}funct3} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{ADD  rd, rs1, rs2}  & \texttt{0000000} & \texttt{000} & $\texttt{rd} \leftarrow \texttt{rs1} + \texttt{rs2}$ \\
+\texttt{SUB  rd, rs1, rs2}  & \texttt{0100000} & \texttt{000} & $\texttt{rd} \leftarrow \texttt{rs1} - \texttt{rs2}$ \\
+\texttt{SLL  rd, rs1, rs2}  & \texttt{0000000} & \texttt{001} & $\texttt{rd} \leftarrow \texttt{rs1} \ll \texttt{rs2}[4:0]$ (logical left shift) \\
+\texttt{SLT  rd, rs1, rs2}  & \texttt{0000000} & \texttt{010} & $\texttt{rd} \leftarrow (\texttt{rs1} <_s \texttt{rs2})\;?\;1:0$ (signed compare) \\
+\texttt{SLTU rd, rs1, rs2}  & \texttt{0000000} & \texttt{011} & $\texttt{rd} \leftarrow (\texttt{rs1} <_u \texttt{rs2})\;?\;1:0$ (unsigned compare) \\
+\texttt{XOR  rd, rs1, rs2}  & \texttt{0000000} & \texttt{100} & $\texttt{rd} \leftarrow \texttt{rs1} \oplus \texttt{rs2}$ (bitwise XOR) \\
+\texttt{SRL  rd, rs1, rs2}  & \texttt{0000000} & \texttt{101} & $\texttt{rd} \leftarrow \texttt{rs1} \gg_\text{logic} \texttt{rs2}[4:0]$ (logical right shift) \\
+\texttt{SRA  rd, rs1, rs2}  & \texttt{0100000} & \texttt{101} & $\texttt{rd} \leftarrow \texttt{rs1} \gg_\text{arith} \texttt{rs2}[4:0]$ (arithmetic right shift) \\
+\texttt{OR   rd, rs1, rs2}  & \texttt{0000000} & \texttt{110} & $\texttt{rd} \leftarrow \texttt{rs1} \,|\, \texttt{rs2}$ (bitwise OR) \\
+\texttt{AND  rd, rs1, rs2}  & \texttt{0000000} & \texttt{111} & $\texttt{rd} \leftarrow \texttt{rs1} \,\&\, \texttt{rs2}$ (bitwise AND) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Note:} ADD and SUB share the same \texttt{funct3 = 000}. They are distinguished by \texttt{funct7}: \texttt{0000000} for ADD, \texttt{0100000} for SUB. The same pattern applies to SRL/SRA (\texttt{funct3 = 101}).
+\end{infobox}
+
+\begin{keybox}
+\textbf{\color{accentblue}Shift reminder:} A bitwise operation works directly on the 0/1 pattern stored in a register. A shift operation moves that bit pattern left or right by some number of positions.
+
+\begin{itemize}
+  \item \textbf{\texttt{SLL} (shift left logical):} moves bits to the left, drops any bits that fall off the left side, and fills the new right-side bits with 0s. It is often used to multiply by $2^n$ when overflow is not a concern.
+  \item \textbf{\texttt{SRL} (shift right logical):} moves bits to the right and fills the new left-side bits with 0s. This is useful for unsigned values and for extracting fields from an instruction or address.
+  \item \textbf{\texttt{SRA} (shift right arithmetic):} moves bits to the right but copies the old leftmost bit (the sign bit) into the new left-side positions. This preserves the sign of a signed value.
+\end{itemize}
+
+There is no separate arithmetic left shift in RV32I: left shifts already insert 0s on the right, so \texttt{SLL} is the left-shift instruction you use.
+
+\textbf{Small example (shown in 8 bits):}
+\[
+\texttt{00101101} \ll 1 = \texttt{01011010}
+\]
+\[
+\texttt{11110100} \gg_\text{logic} 1 = \texttt{01111010}, \qquad
+\texttt{11110100} \gg_\text{arith} 1 = \texttt{11111010}
+\]
+If \texttt{11110100} represents $-12$ in two's complement, arithmetic right shift keeps the value negative, while logical right shift inserts a 0 on the left and changes the meaning.
+
+\textbf{Typical use cases:} use \texttt{SLL} to scale an index by 2, 4, or 8, use \texttt{SRL} to unpack bitfields, and use \texttt{SRA} when shifting signed values right without losing the sign.
+\end{keybox}
+
+\newpage
+
+% ─── I-Type ───────────────────────────────────────────
+\section{I-Type Instructions (Immediate)}
+
+\begin{infobox}
+\textbf{\color{itypecolor}\Large I-Type} \hfill \texttt{opcodes: 0010011, 0000011, 1100111, 1110011}\\[6pt]
+I-type instructions use a \textbf{12-bit signed immediate} value as one operand alongside a source register. This format is used for \textbf{arithmetic with immediates}, \textbf{loads from memory}, \textbf{JALR}, and \textbf{system calls}.
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{3.8cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\textbf{imm[11:0]} & \textbf{rs1} & \textbf{funct3} & \textbf{rd} & \textbf{opcode} \\
+\hline
+\footnotesize bits [31:20] & \footnotesize bits [19:15] & \footnotesize bits [14:12] & \footnotesize bits [11:7] & \footnotesize bits [6:0] \\
+\hline
+\footnotesize 12 bits & \footnotesize 5 bits & \footnotesize 3 bits & \footnotesize 5 bits & \footnotesize 7 bits \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Fields}
+
+\begin{itemize}
+  \item \textbf{\color{purple}imm[11:0]} (12 bits): a \textbf{sign-extended} immediate value (range: $-2048$ to $+2047$).
+  \item \textbf{\color{purple}rs1} (5 bits): source register.
+  \item \textbf{\color{purple}funct3} (3 bits): selects the operation.
+  \item \textbf{\color{purple}rd} (5 bits): destination register.
+  \item \textbf{\color{purple}opcode} (7 bits): identifies the instruction sub-category.
+\end{itemize}
+
+\subsection{I-Type Arithmetic Instructions (\texttt{opcode = 0010011})}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}funct3} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{ADDI  rd, rs1, imm}  & \texttt{000} & $\texttt{rd} \leftarrow \texttt{rs1} + \text{sext}(\text{imm})$ \\
+\texttt{SLTI  rd, rs1, imm}  & \texttt{010} & $\texttt{rd} \leftarrow (\texttt{rs1} <_s \text{sext}(\text{imm}))\;?\;1:0$ \\
+\texttt{SLTIU rd, rs1, imm}  & \texttt{011} & $\texttt{rd} \leftarrow (\texttt{rs1} <_u \text{sext}(\text{imm}))\;?\;1:0$ \\
+\texttt{XORI  rd, rs1, imm}  & \texttt{100} & $\texttt{rd} \leftarrow \texttt{rs1} \oplus \text{sext}(\text{imm})$ \\
+\texttt{ORI   rd, rs1, imm}  & \texttt{110} & $\texttt{rd} \leftarrow \texttt{rs1} \,|\, \text{sext}(\text{imm})$ \\
+\texttt{ANDI  rd, rs1, imm}  & \texttt{111} & $\texttt{rd} \leftarrow \texttt{rs1} \,\&\, \text{sext}(\text{imm})$ \\
+\texttt{SLLI  rd, rs1, shamt}& \texttt{001} & $\texttt{rd} \leftarrow \texttt{rs1} \ll \text{shamt}$ \hfill {\scriptsize imm[11:5]=\texttt{0000000}} \\
+\texttt{SRLI  rd, rs1, shamt}& \texttt{101} & $\texttt{rd} \leftarrow \texttt{rs1} \gg_\text{logic} \text{shamt}$ \hfill {\scriptsize imm[11:5]=\texttt{0000000}} \\
+\texttt{SRAI  rd, rs1, shamt}& \texttt{101} & $\texttt{rd} \leftarrow \texttt{rs1} \gg_\text{arith} \text{shamt}$ \hfill {\scriptsize imm[11:5]=\texttt{0100000}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Shift immediates:}
+For SLLI, SRLI, and SRAI, only the lower 5 bits of the immediate (\texttt{shamt} = shift amount, bits [4:0]) specify the shift distance (0--31). The upper bits (imm[11:5]) act like \texttt{funct7} to distinguish SRLI from SRAI.
+\end{infobox}
+
+\subsection{I-Type Load Instructions (\texttt{opcode = 0000011})}
+
+Load instructions read data from memory at address $\texttt{rs1} + \text{sext}(\text{imm})$ and place it in \texttt{rd}.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}funct3} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{LB  rd, imm(rs1)}  & \texttt{000} & Load byte (8-bit), \textbf{sign-extend} to 32 bits $\rightarrow$ \texttt{rd} \\
+\texttt{LH  rd, imm(rs1)}  & \texttt{001} & Load halfword (16-bit), \textbf{sign-extend} to 32 bits $\rightarrow$ \texttt{rd} \\
+\texttt{LW  rd, imm(rs1)}  & \texttt{010} & Load word (32-bit) $\rightarrow$ \texttt{rd} \\
+\texttt{LBU rd, imm(rs1)}  & \texttt{100} & Load byte (8-bit), \textbf{zero-extend} to 32 bits $\rightarrow$ \texttt{rd} \\
+\texttt{LHU rd, imm(rs1)}  & \texttt{101} & Load halfword (16-bit), \textbf{zero-extend} to 32 bits $\rightarrow$ \texttt{rd} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Sign-extension vs.\ Zero-extension:}
+\texttt{LB}/\texttt{LH} are \textbf{signed}: the MSB of the loaded value is replicated to fill the upper bits, preserving the sign of the original value. \texttt{LBU}/\texttt{LHU} are \textbf{unsigned}: the upper bits are filled with zeros. This is critical when loading narrow data into a 32-bit register.
+\end{infobox}
+
+\newpage
+
+% ─── S-Type ───────────────────────────────────────────
+\section{S-Type Instructions (Store)}
+
+\begin{infobox}
+\textbf{\color{stypecolor}\Large S-Type} \hfill \texttt{opcode = 0100011}\\[6pt]
+S-type instructions \textbf{store} data from a register (\texttt{rs2}) into memory. The memory address is computed as $\texttt{rs1} + \text{sext}(\text{imm})$. There is \textbf{no destination register} --- the immediate is split across two fields.
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{2.2cm}|>{\centering\arraybackslash\columncolor{rs2bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{immbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\textbf{imm[11:5]} & \textbf{rs2} & \textbf{rs1} & \textbf{funct3} & \textbf{imm[4:0]} & \textbf{opcode} \\
+\hline
+\footnotesize bits [31:25] & \footnotesize bits [24:20] & \footnotesize bits [19:15] & \footnotesize bits [14:12] & \footnotesize bits [11:7] & \footnotesize bits [6:0] \\
+\hline
+\footnotesize 7 bits & \footnotesize 5 bits & \footnotesize 5 bits & \footnotesize 3 bits & \footnotesize 5 bits & \footnotesize 7 bits \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Why Is the Immediate Split?}
+
+The S-type immediate occupies the same bit positions as R-type's \texttt{funct7} (bits [31:25]) and \texttt{rd} (bits [11:7]). This keeps the \texttt{rs1} and \texttt{rs2} fields in exactly the same position across R, I, and S formats, simplifying the hardware register-file read logic.
+
+\subsection{S-Type Instruction Listing}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}funct3} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{SB rs2, imm(rs1)} & \texttt{000} & Store byte: $\text{Mem}[\texttt{rs1}+\text{sext}(\text{imm})] \leftarrow \texttt{rs2}[7:0]$ \\
+\texttt{SH rs2, imm(rs1)} & \texttt{001} & Store halfword: $\text{Mem}[\texttt{rs1}+\text{sext}(\text{imm})] \leftarrow \texttt{rs2}[15:0]$ \\
+\texttt{SW rs2, imm(rs1)} & \texttt{010} & Store word: $\text{Mem}[\texttt{rs1}+\text{sext}(\text{imm})] \leftarrow \texttt{rs2}[31:0]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\newpage
+
+% ─── B-Type ───────────────────────────────────────────
+\section{B-Type Instructions (Branch)}
+
+\begin{infobox}
+\textbf{\color{btypecolor}\Large B-Type} \hfill \texttt{opcode = 1100011}\\[6pt]
+B-type instructions implement \textbf{conditional branches}. They compare two registers (\texttt{rs1}, \texttt{rs2}) and, if the condition is true, jump to $\text{PC} + \text{sext}(\text{offset})$. Otherwise, execution continues at $\text{PC} + 4$. The offset is a \textbf{13-bit signed} value with the least significant bit always 0 (instructions are 4-byte aligned, offsets are multiples of 2).
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\footnotesize
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{0.8cm}|>{\centering\arraybackslash\columncolor{immbg}}p{1.8cm}|>{\centering\arraybackslash\columncolor{rs2bg}}p{1.4cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.4cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.2cm}|>{\centering\arraybackslash\columncolor{immbg}}p{1.2cm}|>{\centering\arraybackslash\columncolor{immbg}}p{0.8cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{1.8cm}|}
+\hline
+\textbf{[12]} & \textbf{[10:5]} & \textbf{rs2} & \textbf{rs1} & \textbf{f3} & \textbf{[4:1]} & \textbf{[11]} & \textbf{opcode} \\
+\hline
+\tiny bit 31 & \tiny bits [30:25] & \tiny bits [24:20] & \tiny bits [19:15] & \tiny bits [14:12] & \tiny bits [11:8] & \tiny bit 7 & \tiny bits [6:0] \\
+\hline
+\tiny 1 & \tiny 6 & \tiny 5 & \tiny 5 & \tiny 3 & \tiny 4 & \tiny 1 & \tiny 7 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Immediate Reconstruction}
+
+The 13-bit branch offset is assembled from the scattered fields:
+$$\text{offset} = \{\text{imm}[12], \text{imm}[11], \text{imm}[10:5], \text{imm}[4:1], 0\}$$
+Bit [0] is always 0, giving a range of $\pm 4\,\text{KiB}$ ($-4096$ to $+4094$).
+
+\subsection{B-Type Instruction Listing}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}funct3} & \textbf{\color{purple}Condition (branch if true)} \\
+\midrule
+\texttt{BEQ  rs1, rs2, offset} & \texttt{000} & $\texttt{rs1} = \texttt{rs2}$ \hfill (equal) \\
+\texttt{BNE  rs1, rs2, offset} & \texttt{001} & $\texttt{rs1} \neq \texttt{rs2}$ \hfill (not equal) \\
+\texttt{BLT  rs1, rs2, offset} & \texttt{100} & $\texttt{rs1} <_s \texttt{rs2}$ \hfill (signed less than) \\
+\texttt{BGE  rs1, rs2, offset} & \texttt{101} & $\texttt{rs1} \geq_s \texttt{rs2}$ \hfill (signed greater or equal) \\
+\texttt{BLTU rs1, rs2, offset} & \texttt{110} & $\texttt{rs1} <_u \texttt{rs2}$ \hfill (unsigned less than) \\
+\texttt{BGEU rs1, rs2, offset} & \texttt{111} & $\texttt{rs1} \geq_u \texttt{rs2}$ \hfill (unsigned greater or equal) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}No BLE / BGT?}
+RISC-V omits ``branch-if-less-or-equal'' and ``branch-if-greater-than'' because they can be synthesized by swapping operands:
+\begin{itemize}
+  \item \texttt{BLE rs1, rs2, offset} $\equiv$ \texttt{BGE rs2, rs1, offset}
+  \item \texttt{BGT rs1, rs2, offset} $\equiv$ \texttt{BLT rs2, rs1, offset}
+\end{itemize}
+This keeps the hardware simple without losing expressiveness.
+\end{infobox}
+
+\newpage
+
+% ─── U-Type ───────────────────────────────────────────
+\section{U-Type Instructions (Upper Immediate)}
+
+\begin{infobox}
+\textbf{\color{utypecolor}\Large U-Type} \hfill \texttt{opcodes: 0110111 (LUI), 0010111 (AUIPC)}\\[6pt]
+U-type instructions carry a \textbf{20-bit upper immediate} that is placed into bits [31:12] of the destination register. The lower 12 bits are set to zero. This format is used to construct large constants or PC-relative addresses.
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{6.5cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\textbf{imm[31:12]} & \textbf{rd} & \textbf{opcode} \\
+\hline
+\footnotesize bits [31:12] & \footnotesize bits [11:7] & \footnotesize bits [6:0] \\
+\hline
+\footnotesize 20 bits & \footnotesize 5 bits & \footnotesize 7 bits \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{U-Type Instruction Listing}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8.5cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}Opcode} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{LUI   rd, imm} & \texttt{0110111} & $\texttt{rd} \leftarrow \text{imm}[31:12] \,\|\, 12'b0$ \newline Load Upper Immediate: places the 20-bit immediate in the upper 20 bits of \texttt{rd}, zeroing the lower 12 bits. \\[6pt]
+\texttt{AUIPC rd, imm} & \texttt{0010111} & $\texttt{rd} \leftarrow \text{PC} + (\text{imm}[31:12] \,\|\, 12'b0)$ \newline Add Upper Immediate to PC: adds the shifted immediate to the current PC and stores the result in \texttt{rd}. Used for PC-relative addressing of data/code. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{keybox}
+\textbf{\color{gold}Building 32-bit Constants:}
+Since immediates in I-type are only 12 bits, you need \textbf{two instructions} to load a full 32-bit constant:
+\begin{enumerate}
+  \item \texttt{LUI rd, upper\_20} --- sets bits [31:12]
+  \item \texttt{ADDI rd, rd, lower\_12} --- sets bits [11:0]
+\end{enumerate}
+Example: load \texttt{0xDEADBEEF} into \texttt{x5}:
+\begin{lstlisting}
+  lui  x5, 0xDEADC     # x5 = 0xDEADC000
+  addi x5, x5, 0xEEF   # x5 = 0xDEADBEEF  (note: sign-extension adjustment)
+\end{lstlisting}
+\vspace{-0.3cm}
+\end{keybox}
+
+\newpage
+
+% ─── J-Type ───────────────────────────────────────────
+\section{J-Type Instructions (Jump)}
+
+\begin{infobox}
+\textbf{\color{jtypecolor}\Large J-Type} \hfill \texttt{opcode = 1101111 (JAL)}\\[6pt]
+J-type provides an unconditional jump with a \textbf{21-bit signed offset} (range: $\pm 1\,\text{MiB}$). The return address ($\text{PC}+4$) is saved in \texttt{rd}, enabling function calls.
+\end{infobox}
+
+\subsection{Format}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\footnotesize
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{0.8cm}|>{\centering\arraybackslash\columncolor{immbg}}p{3.0cm}|>{\centering\arraybackslash\columncolor{immbg}}p{0.8cm}|>{\centering\arraybackslash\columncolor{immbg}}p{2.2cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.4cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{1.8cm}|}
+\hline
+\textbf{[20]} & \textbf{[10:1]} & \textbf{[11]} & \textbf{[19:12]} & \textbf{rd} & \textbf{opcode} \\
+\hline
+\tiny bit 31 & \tiny bits [30:21] & \tiny bit 20 & \tiny bits [19:12] & \tiny bits [11:7] & \tiny bits [6:0] \\
+\hline
+\tiny 1 & \tiny 10 & \tiny 1 & \tiny 8 & \tiny 5 & \tiny 7 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Immediate Reconstruction}
+
+The 21-bit offset is assembled as:
+$$\text{offset} = \{\text{imm}[20], \text{imm}[19:12], \text{imm}[11], \text{imm}[10:1], 0\}$$
+
+\subsection{Jump Instructions}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{8cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}Type} & \textbf{\color{purple}Operation} \\
+\midrule
+\texttt{JAL  rd, offset}       & J-type & $\texttt{rd} \leftarrow \text{PC}+4$; \quad $\text{PC} \leftarrow \text{PC} + \text{sext}(\text{offset})$ \newline Jump And Link: saves return address in \texttt{rd}, then jumps to PC-relative target. \\[6pt]
+\texttt{JALR rd, rs1, offset}  & I-type & $\texttt{rd} \leftarrow \text{PC}+4$; \quad $\text{PC} \leftarrow (\texttt{rs1} + \text{sext}(\text{imm})) \;\&\; \sim1$ \newline Jump And Link Register: jumps to an address computed from a register, clearing bit 0. Used for indirect jumps and function returns. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Function call / return pattern:}
+\begin{itemize}
+  \item \textbf{Call:} \texttt{jal ra, function\_label} --- jumps to function, saves return address in \texttt{ra} (\texttt{x1}).
+  \item \textbf{Return:} \texttt{jalr zero, ra, 0} --- jumps to address in \texttt{ra}, discards link (writes to \texttt{x0}).
+\end{itemize}
+\end{infobox}
+
+\newpage
+
+% ─── System Instructions ─────────────────────────────
+\section{System Instructions}
+
+\begin{infobox}
+\textbf{\color{gold}\Large System} \hfill \texttt{opcode = 1110011}\\[6pt]
+The RV32I base includes two system instructions used to request services from the execution environment (OS or debugger).
+\end{infobox}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l p{10cm}}
+\toprule
+\textbf{\color{purple}Instruction} & \textbf{\color{purple}Description} \\
+\midrule
+\texttt{ECALL}  & Environment Call: requests a service from the operating system or execution environment (e.g., a system call). The specific service is determined by the values in \texttt{a0}--\texttt{a7}. \\[4pt]
+\texttt{EBREAK} & Environment Breakpoint: transfers control to a debugger. Used to set software breakpoints during debugging. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\newpage
+
+% =====================================================
+% CHAPTER 3: COMPLETE ISA REFERENCE TABLE
+% =====================================================
+\chapter{Complete RV32I Instruction Reference}
+
+This chapter provides the \textbf{full RV32I instruction encoding table} as specified in the official RISC-V ISA manual. Every instruction is listed with its type, opcode, funct3, funct7 (where applicable), and a concise description.
+
+\begin{center}
+  \includegraphics[width=0.98\textwidth]{images/isa_map.png}
+\end{center}
+
+\section{Master Encoding Table}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.18}
+\footnotesize
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{6pt}
+\begin{longtable}{
+  >{\ttfamily}l  % Instruction
+  c              % Type
+  >{\ttfamily}c  % opcode
+  >{\ttfamily}c  % funct3
+  >{\ttfamily}c  % funct7/imm
+  p{5.5cm}       % Description
+}
+\toprule
+\normalfont\textbf{\color{purple}Instruction} &
+\textbf{\color{purple}Type} &
+\textbf{\color{purple}opcode} &
+\textbf{\color{purple}funct3} &
+\textbf{\color{purple}funct7/imm} &
+\textbf{\color{purple}Description} \\
+\midrule
+\endfirsthead
+
+\toprule
+\normalfont\textbf{\color{purple}Instruction} &
+\textbf{\color{purple}Type} &
+\textbf{\color{purple}opcode} &
+\textbf{\color{purple}funct3} &
+\textbf{\color{purple}funct7/imm} &
+\textbf{\color{purple}Description} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{6}{r}{\footnotesize\itshape Continued on next page\ldots} \\
+\bottomrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+%% ─── R-TYPE ──────────────────────────────────────────
+\rowcolor{funct7bg!30}
+\multicolumn{6}{l}{\textbf{\color{rtypecolor}\normalfont R-Type --- Register-Register Operations (opcode 0110011)}} \\
+ADD  rd,rs1,rs2   & R & 0110011 & 000 & 0000000 & Add: rd = rs1 + rs2 \\
+SUB  rd,rs1,rs2   & R & 0110011 & 000 & 0100000 & Subtract: rd = rs1 $-$ rs2 \\
+SLL  rd,rs1,rs2   & R & 0110011 & 001 & 0000000 & Shift left logical by rs2[4:0] \\
+SLT  rd,rs1,rs2   & R & 0110011 & 010 & 0000000 & Set if less than (signed) \\
+SLTU rd,rs1,rs2   & R & 0110011 & 011 & 0000000 & Set if less than (unsigned) \\
+XOR  rd,rs1,rs2   & R & 0110011 & 100 & 0000000 & Bitwise exclusive OR \\
+SRL  rd,rs1,rs2   & R & 0110011 & 101 & 0000000 & Shift right logical by rs2[4:0] \\
+SRA  rd,rs1,rs2   & R & 0110011 & 101 & 0100000 & Shift right arithmetic by rs2[4:0] \\
+OR   rd,rs1,rs2   & R & 0110011 & 110 & 0000000 & Bitwise OR \\
+AND  rd,rs1,rs2   & R & 0110011 & 111 & 0000000 & Bitwise AND \\
+\midrule
+
+%% ─── I-TYPE ARITHMETIC ──────────────────────────────
+\rowcolor{rs1bg!30}
+\multicolumn{6}{l}{\textbf{\color{itypecolor}\normalfont I-Type --- Immediate Arithmetic (opcode 0010011)}} \\
+ADDI  rd,rs1,imm  & I & 0010011 & 000 & ---     & Add immediate \\
+SLTI  rd,rs1,imm  & I & 0010011 & 010 & ---     & Set if $<$ imm (signed) \\
+SLTIU rd,rs1,imm  & I & 0010011 & 011 & ---     & Set if $<$ imm (unsigned) \\
+XORI  rd,rs1,imm  & I & 0010011 & 100 & ---     & XOR with immediate \\
+ORI   rd,rs1,imm  & I & 0010011 & 110 & ---     & OR with immediate \\
+ANDI  rd,rs1,imm  & I & 0010011 & 111 & ---     & AND with immediate \\
+SLLI  rd,rs1,shamt& I & 0010011 & 001 & 0000000 & Shift left logical by shamt \\
+SRLI  rd,rs1,shamt& I & 0010011 & 101 & 0000000 & Shift right logical by shamt \\
+SRAI  rd,rs1,shamt& I & 0010011 & 101 & 0100000 & Shift right arithmetic by shamt \\
+\midrule
+
+%% ─── I-TYPE LOADS ───────────────────────────────────
+\rowcolor{rs2bg!30}
+\multicolumn{6}{l}{\textbf{\color{stypecolor}\normalfont I-Type --- Load Instructions (opcode 0000011)}} \\
+LB   rd,imm(rs1)  & I & 0000011 & 000 & ---     & Load byte, sign-extend \\
+LH   rd,imm(rs1)  & I & 0000011 & 001 & ---     & Load halfword, sign-extend \\
+LW   rd,imm(rs1)  & I & 0000011 & 010 & ---     & Load word (32-bit) \\
+LBU  rd,imm(rs1)  & I & 0000011 & 100 & ---     & Load byte, zero-extend \\
+LHU  rd,imm(rs1)  & I & 0000011 & 101 & ---     & Load halfword, zero-extend \\
+\midrule
+
+%% ─── S-TYPE STORES ──────────────────────────────────
+\rowcolor{rs2bg!30}
+\multicolumn{6}{l}{\textbf{\color{stypecolor}\normalfont S-Type --- Store Instructions (opcode 0100011)}} \\
+SB   rs2,imm(rs1) & S & 0100011 & 000 & ---     & Store byte (8-bit) \\
+SH   rs2,imm(rs1) & S & 0100011 & 001 & ---     & Store halfword (16-bit) \\
+SW   rs2,imm(rs1) & S & 0100011 & 010 & ---     & Store word (32-bit) \\
+\midrule
+
+%% ─── B-TYPE BRANCHES ────────────────────────────────
+\rowcolor{funct3bg!30}
+\multicolumn{6}{l}{\textbf{\color{btypecolor}\normalfont B-Type --- Conditional Branches (opcode 1100011)}} \\
+BEQ  rs1,rs2,off  & B & 1100011 & 000 & ---     & Branch if rs1 $=$ rs2 \\
+BNE  rs1,rs2,off  & B & 1100011 & 001 & ---     & Branch if rs1 $\neq$ rs2 \\
+BLT  rs1,rs2,off  & B & 1100011 & 100 & ---     & Branch if rs1 $<$ rs2 (signed) \\
+BGE  rs1,rs2,off  & B & 1100011 & 101 & ---     & Branch if rs1 $\geq$ rs2 (signed) \\
+BLTU rs1,rs2,off  & B & 1100011 & 110 & ---     & Branch if rs1 $<$ rs2 (unsigned) \\
+BGEU rs1,rs2,off  & B & 1100011 & 111 & ---     & Branch if rs1 $\geq$ rs2 (unsigned) \\
+\midrule
+
+%% ─── U-TYPE ─────────────────────────────────────────
+\rowcolor{rdbg!30}
+\multicolumn{6}{l}{\textbf{\color{utypecolor}\normalfont U-Type --- Upper Immediate}} \\
+LUI   rd,imm      & U & 0110111 & --- & ---     & Load upper immediate (bits [31:12]) \\
+AUIPC rd,imm      & U & 0010111 & --- & ---     & Add upper immediate to PC \\
+\midrule
+
+%% ─── J-TYPE / JALR ──────────────────────────────────
+\rowcolor{opcodebg!30}
+\multicolumn{6}{l}{\textbf{\color{jtypecolor}\normalfont J-Type / I-Type --- Jump Instructions}} \\
+JAL  rd,offset     & J & 1101111 & --- & ---     & Jump and link (PC-relative) \\
+JALR rd,rs1,off    & I & 1100111 & 000 & ---     & Jump and link register (indirect) \\
+\midrule
+
+%% ─── SYSTEM ─────────────────────────────────────────
+\rowcolor{gold!15}
+\multicolumn{6}{l}{\textbf{\color{gold!80!black}\normalfont System Instructions (opcode 1110011)}} \\
+ECALL              & I & 1110011 & 000 & 000000000000 & Environment call (syscall) \\
+EBREAK             & I & 1110011 & 000 & 000000000001 & Environment breakpoint \\
+
+\end{longtable}
+\end{center}
+
+\newpage
+
+\section{Instruction Count Summary}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l c l}
+\toprule
+\textbf{\color{purple}Category} & \textbf{\color{purple}Count} & \textbf{\color{purple}Instructions} \\
+\midrule
+R-Type (Register)        & 10 & ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND \\
+I-Type (Imm.\ Arith.)   & 9  & ADDI, SLTI, SLTIU, XORI, ORI, ANDI, SLLI, SRLI, SRAI \\
+I-Type (Load)            & 5  & LB, LH, LW, LBU, LHU \\
+S-Type (Store)           & 3  & SB, SH, SW \\
+B-Type (Branch)          & 6  & BEQ, BNE, BLT, BGE, BLTU, BGEU \\
+U-Type (Upper Imm.)      & 2  & LUI, AUIPC \\
+J-Type (JAL)             & 1  & JAL \\
+I-Type (JALR)            & 1  & JALR \\
+System                   & 2  & ECALL, EBREAK \\
+\midrule
+\textbf{Total}           & \textbf{39} & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{keybox}
+\textbf{\color{gold}Design Implication:}
+These 39 instructions (often quoted as ``40 instructions'' when including FENCE) represent the \textit{entire} base RV32I ISA. From a hardware designer's perspective, each instruction translates to a specific combination of control signals. Understanding every instruction's encoding and semantics is the foundation for designing the datapath, control unit, and decoder of the YARP processor.
+\end{keybox}
+
+\newpage
+
+% =====================================================
+% CHAPTER 4: INSTRUCTION DETAILS & EXAMPLES
+% =====================================================
+\chapter{Instruction Details \& Examples}
+
+This chapter provides worked examples showing how each instruction type is encoded as a 32-bit machine word and what it does conceptually.
+
+\section{R-Type Example: ADD x5, x6, x7}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{funct7bg}}p{2.2cm}|>{\centering\arraybackslash\columncolor{rs2bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\texttt{0000000} & \texttt{00111} & \texttt{00110} & \texttt{000} & \texttt{00101} & \texttt{0110011} \\
+\hline
+funct7 & \texttt{x7} & \texttt{x6} & ADD & \texttt{x5} & OP \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Binary:} \texttt{0000000\,00111\,00110\,000\,00101\,0110011}
+
+\textbf{Hex:} \texttt{0x007302B3}
+
+\textbf{Semantics:} $\texttt{x5} \leftarrow \texttt{x6} + \texttt{x7}$. Reads registers \texttt{x6} and \texttt{x7}, computes their sum, and writes the result to \texttt{x5}.
+
+\section{I-Type Example: ADDI x10, x0, 42}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{3.8cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{rdbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\texttt{000000101010} & \texttt{00000} & \texttt{000} & \texttt{01010} & \texttt{0010011} \\
+\hline
+imm = 42 & \texttt{x0} & ADDI & \texttt{x10} & OP-IMM \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Semantics:} $\texttt{x10} \leftarrow \texttt{x0} + 42 = 0 + 42 = 42$. This is the standard way to load a small constant into a register.
+
+\section{S-Type Example: SW x15, 8(x2)}
+
+Store word: writes the contents of \texttt{x15} to memory at address $\texttt{x2} + 8$.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|>{\centering\arraybackslash\columncolor{immbg}}p{2.2cm}|>{\centering\arraybackslash\columncolor{rs2bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{rs1bg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{funct3bg}}p{1.5cm}|>{\centering\arraybackslash\columncolor{immbg}}p{1.6cm}|>{\centering\arraybackslash\columncolor{opcodebg}}p{2.2cm}|}
+\hline
+\texttt{0000000} & \texttt{01111} & \texttt{00010} & \texttt{010} & \texttt{01000} & \texttt{0100011} \\
+\hline
+imm[11:5]=0 & \texttt{x15} & \texttt{x2} & SW & imm[4:0]=8 & STORE \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Semantics:} $\text{Mem}[\texttt{x2}+8] \leftarrow \texttt{x15}$
+
+\section{B-Type Example: BEQ x1, x2, 16}
+
+Branch to $\text{PC}+16$ if \texttt{x1} equals \texttt{x2}.
+
+\textbf{Offset = 16:} binary \texttt{0\,0000001000\,0} $\rightarrow$ imm[12:1] = \texttt{0\_000000\_1000\_0}
+
+The scattered immediate fields encode: imm[12]=0, imm[11]=0, imm[10:5]=000000, imm[4:1]=1000.
+
+\textbf{Semantics:} If $\texttt{x1} = \texttt{x2}$, then $\text{PC} \leftarrow \text{PC} + 16$; else $\text{PC} \leftarrow \text{PC} + 4$.
+
+\section{U-Type Example: LUI x5, 0xDEADC}
+
+\textbf{Semantics:} $\texttt{x5} \leftarrow \texttt{0xDEADC} \ll 12 = \texttt{0xDEADC000}$. Places the upper 20 bits directly.
+
+\section{J-Type Example: JAL ra, 100}
+
+\textbf{Semantics:}
+\begin{enumerate}
+  \item $\texttt{ra} \leftarrow \text{PC} + 4$ (save return address)
+  \item $\text{PC} \leftarrow \text{PC} + 100$ (jump to target)
+\end{enumerate}
+
+This is a function call: the processor remembers where to return (in \texttt{ra}) and jumps to the function body that is 100 bytes away.
+
+\section{Common Pseudoinstructions}
+
+RISC-V assemblers recognize \textbf{pseudoinstructions} --- mnemonics that don't correspond to a single hardware instruction but are expanded into one or more real instructions:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l l p{5.5cm}}
+\toprule
+\textbf{\color{purple}Pseudo} & \textbf{\color{purple}Expansion} & \textbf{\color{purple}Meaning} \\
+\midrule
+\texttt{nop}          & \texttt{addi x0, x0, 0}    & No operation \\
+\texttt{li rd, imm}   & \texttt{lui + addi}         & Load 32-bit immediate \\
+\texttt{mv rd, rs}    & \texttt{addi rd, rs, 0}     & Copy register \\
+\texttt{not rd, rs}   & \texttt{xori rd, rs, -1}    & Bitwise NOT \\
+\texttt{neg rd, rs}   & \texttt{sub rd, x0, rs}     & Two's complement negate \\
+\texttt{j offset}     & \texttt{jal x0, offset}     & Unconditional jump (no link) \\
+\texttt{ret}          & \texttt{jalr x0, ra, 0}     & Return from function \\
+\texttt{call label}   & \texttt{auipc + jalr}       & Far function call \\
+\texttt{beqz rs, off} & \texttt{beq rs, x0, off}    & Branch if zero \\
+\texttt{bnez rs, off} & \texttt{bne rs, x0, off}    & Branch if not zero \\
+\texttt{bgt rs,rt,off}& \texttt{blt rt, rs, off}    & Branch if greater than \\
+\texttt{ble rs,rt,off}& \texttt{bge rt, rs, off}    & Branch if less or equal \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Why pseudoinstructions matter:}
+Pseudoinstructions make assembly code easier to read and write, while keeping the hardware simple. The assembler transparently expands them. For verification, only the \textbf{real} (base) instructions need to be implemented in hardware.
+\end{infobox}
+
+\end{document}
