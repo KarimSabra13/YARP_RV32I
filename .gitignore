@@ -25,6 +25,11 @@ Guide/build/
 # Image sources & generation
 Guide/images/
 Guide/generate_images.py
+!Guide/generate_images.py
+!Guide/images/
+Guide/images/*
+!Guide/images/fetch_interface.png
+!Guide/images/fetch_timing.png
 
 # Guide-level gitignore (handled here now)
 Guide/.gitignore

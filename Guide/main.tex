@@ -82,6 +82,17 @@
   morestring=[b]"
 }
 
+\lstdefinelanguage{systemverilog}{
+  morekeywords={
+    module, endmodule, input, output, logic, assign, always_ff,
+    posedge, negedge, if, else, begin, end
+  },
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+
 \lstset{
   language=riscv,
   basicstyle=\ttfamily\small,
@@ -246,6 +257,7 @@
     \item[\color{purple}\checkmark] Complete ISA Reference
     \item[\color{purple}\checkmark] Programmer's Model \& Register File
     \item[\color{purple}\checkmark] YARP Processor Microarchitecture
+    \item[\color{purple}\checkmark] RTL Implementation Walkthrough
   \end{itemize}
 
   \vfill
@@ -1273,5 +1285,126 @@ RISC-V assemblers recognize \textbf{pseudoinstructions} --- mnemonics that don't
 \textbf{\color{accentblue}Why pseudoinstructions matter:}
 Pseudoinstructions make assembly code easier to read and write, while keeping the hardware simple. The assembler transparently expands them. For verification, only the \textbf{real} (base) instructions need to be implemented in hardware.
 \end{infobox}
+
+% =====================================================
+% CHAPTER 5: YARP RTL IMPLEMENTATION
+% =====================================================
+\chapter{YARP RTL Implementation}
+
+The previous chapters focused on the ISA: what instructions exist, how they are encoded, and what behavior software expects. This chapter now switches to RTL and starts building YARP from the first hardware step in the execution flow: instruction fetch.
+
+\section{Step 1: Fetch}
+
+Instruction memory is one of the basic building blocks of a RISC-V processor. Before the core can decode or execute an instruction, it must fetch the 32-bit instruction word from memory using the current Program Counter (PC).
+
+Modern processors often fetch multiple instructions every cycle, but YARP is a single-cycle RV32I core. In this version of the design, the processor asks for one instruction every cycle after reset is released. The memory model is intentionally simple: a read request and address are presented to memory, and the instruction data returns in the same cycle.
+
+\begin{keybox}
+\textbf{\color{gold}Single-cycle assumption:}
+Because the memory responds in the same cycle, there is no ready/valid handshake in this first version of YARP. The fetch block only needs to issue the request, drive the address, and forward the returned 32-bit instruction to the decode stage.
+\end{keybox}
+
+\begin{center}
+  \includegraphics[width=0.86\textwidth]{images/fetch_interface.png}
+\end{center}
+
+\subsection{Design Requirements}
+
+The fetch block is intentionally minimal and follows four simple rules:
+\begin{itemize}
+  \item It accepts the current PC on \texttt{instr\_mem\_pc\_i}.
+  \item It asserts \texttt{instr\_mem\_req\_o} once the processor comes out of reset.
+  \item It forwards the PC value to memory on \texttt{instr\_mem\_addr\_o}.
+  \item It forwards the returned memory word on \texttt{instr\_mem\_instr\_o}.
+\end{itemize}
+
+\subsection{Interface Definition}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{4.0cm} p{1.7cm} p{1.4cm} p{7.2cm}}
+\toprule
+\textbf{\color{purple}Signal} & \textbf{\color{purple}Dir.} & \textbf{\color{purple}Width} & \textbf{\color{purple}Description} \\
+\midrule
+\texttt{instr\_mem\_pc\_i}    & Input  & 32 & Current Program Counter value used as the instruction address. \\
+\texttt{instr\_mem\_req\_o}   & Output & 1  & Read request issued to instruction memory after reset is released. \\
+\texttt{instr\_mem\_addr\_o}  & Output & 32 & Address sent to instruction memory. In this RTL it is a direct copy of the PC. \\
+\texttt{mem\_rd\_data\_i}     & Input  & 32 & Read data returned by instruction memory in the same cycle as the request. \\
+\texttt{instr\_mem\_instr\_o} & Output & 32 & Instruction word forwarded to the decode stage. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{infobox}
+\textbf{\color{accentblue}Why there is no ready signal:}
+The current YARP memory model is zero-wait-state. That means the fetch block does not need to stall, buffer, or retry requests. Later versions that connect to a slower memory would need an explicit handshake.
+\end{infobox}
+
+\subsection{RTL Implementation}
+
+The RTL for the fetch block is shown below:
+
+\begin{lstlisting}[language=systemverilog]
+module yarp_instr_mem (
+  input    logic          clk,
+  input    logic          reset_n,
+
+  input    logic [31:0]   instr_mem_pc_i,
+
+  output   logic          instr_mem_req_o,
+  output   logic [31:0]   instr_mem_addr_o,
+
+  input    logic [31:0]   mem_rd_data_i,
+
+  output   logic [31:0]   instr_mem_instr_o
+);
+
+logic instr_mem_req_q;
+
+always_ff @(posedge clk or negedge reset_n)
+  if (!reset_n)
+    instr_mem_req_q <= 1'b0;
+  else
+    instr_mem_req_q <= 1'b1;
+
+assign instr_mem_req_o   = instr_mem_req_q;
+assign instr_mem_addr_o  = instr_mem_pc_i;
+assign instr_mem_instr_o = mem_rd_data_i;
+
+endmodule
+\end{lstlisting}
+
+This implementation uses only one piece of sequential state: \texttt{instr\_mem\_req\_q}. That register clears to \texttt{0} during reset and becomes \texttt{1} on the first active clock edge after reset is deasserted.
+
+The rest of the block is purely combinational:
+\begin{itemize}
+  \item \texttt{instr\_mem\_addr\_o} always mirrors \texttt{instr\_mem\_pc\_i}.
+  \item \texttt{instr\_mem\_instr\_o} always mirrors \texttt{mem\_rd\_data\_i}.
+  \item Once \texttt{instr\_mem\_req\_o} goes high, it stays high, which matches a core that continuously fetches one instruction per cycle.
+\end{itemize}
+
+\begin{warnbox}
+\textbf{\color{darkred}Important implementation detail:}
+This fetch block does not contain the Program Counter itself. The PC is generated elsewhere in the processor and is only consumed here. The fetch block is therefore a thin interface layer between the PC path and instruction memory.
+\end{warnbox}
+
+\subsection{Cycle-by-Cycle Behavior}
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{images/fetch_timing.png}
+\end{center}
+
+The timing diagram highlights the intended behavior:
+\begin{enumerate}
+  \item During reset, \texttt{instr\_mem\_req\_o} is low.
+  \item On the first clock after reset is released, the request goes high.
+  \item The PC value is driven directly onto the memory address bus.
+  \item Because memory responds in the same cycle, \texttt{mem\_rd\_data\_i} and \texttt{instr\_mem\_instr\_o} carry the same instruction word.
+\end{enumerate}
+
+\begin{keybox}
+\textbf{\color{gold}Fetch in one sentence:}
+YARP fetch is a small RTL wrapper that raises a memory request after reset, sends the current PC to memory, and forwards the returned 32-bit instruction to decode without any extra buffering.
+\end{keybox}
 
 \end{document}
